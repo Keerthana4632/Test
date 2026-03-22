@@ -16,7 +16,7 @@ int main(){
     std::cin >> op;
 
     int result = calc.calculate(a, b, op);
-    std::cout << result;
+    std::cout << "result is" << result;
     std::cin >> chumma;
     return 0;
 }
