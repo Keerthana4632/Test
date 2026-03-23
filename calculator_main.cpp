@@ -6,7 +6,6 @@ int main(){
 
     int a, b;
     char op;
-    int chumma;
 
     std::cout << "num1:";
     std::cin >> a;
@@ -17,6 +16,6 @@ int main(){
 
     int result = calc.calculate(a, b, op);
     std::cout << "result is" << result;
-    std::cout << End;
+    std::cout << "End";
     return 0;
 }
