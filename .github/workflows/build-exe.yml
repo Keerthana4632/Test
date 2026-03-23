@@ -1,0 +1,69 @@
+name: Build and store exe
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Configure with CMake
+        run: cmake -S . -B build
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Copy exe into repo
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+
+          if (Test-Path "build/Release/calculator_app.exe") {
+            Copy-Item "build/Release/calculator_app.exe" "artifacts/calculator_app.exe" -Force
+          }
+          elseif (Test-Path "build/calculator_app.exe") {
+            Copy-Item "build/calculator_app.exe" "artifacts/calculator_app.exe" -Force
+          }
+          else {
+            Write-Host "EXE not found"
+            Get-ChildItem -Recurse build
+            exit 1
+          }
+
+      - name: Upload exe as GitHub Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-exe
+          path: artifacts/calculator_app.exe
+
+      - name: Commit and push exe
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add artifacts/calculator_app.exe
+
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No changes to commit"
+            exit 0
+          }
+
+          git commit -m "Auto-build: update calculator_app.exe"
+          git push
