@@ -15,7 +15,7 @@ int main(){
     std::cin >> op;
 
     int result = calc.calculate(a, b, op);
-    std::cout << "result is" << result;
+    std::cout << "result is: " << result;
     std::cout << "End";
     return 0;
 }
